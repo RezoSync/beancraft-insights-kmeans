@@ -1,0 +1,5 @@
+cluster,Lotes,Puntaje_total,Sabor,Acidez,Cuerpo,Balance,Altitud_m,Defectos,Pct_Mexico,Pct_Natural,Pct_Lavado,Pct_Lotes
+Café de especialidad,254,84.89,7.92,7.95,7.85,7.91,1509.89,2.4,5.12,18.9,55.12,19.0
+Calidad media de altura,476,82.51,7.55,7.54,7.53,7.56,1520.21,4.23,17.44,10.92,73.32,35.6
+Calidad media de baja altitud,315,82.42,7.57,7.54,7.56,7.56,831.93,1.98,11.75,36.51,37.78,23.56
+Calidad baja con defectos,292,78.88,7.1,7.2,7.19,7.09,1181.23,7.36,35.27,14.38,70.89,21.84

@@ -1,0 +1,232 @@
+{
+  "proyecto": "Segmentación de lotes de café mediante K-Means",
+  "k_final": 4,
+  "variables_modelo": [
+    "flavor",
+    "acidity",
+    "body",
+    "balance",
+    "altitud_m",
+    "log_defectos"
+  ],
+  "metricas_por_k": [
+    {
+      "K": 2,
+      "inercia": 5602.208,
+      "silueta": 0.2555,
+      "davies_bouldin": 1.3902,
+      "calinski_harabasz": 576.6338
+    },
+    {
+      "K": 3,
+      "inercia": 4795.3778,
+      "silueta": 0.1914,
+      "davies_bouldin": 1.5909,
+      "calinski_harabasz": 448.8002
+    },
+    {
+      "K": 4,
+      "inercia": 4255.5787,
+      "silueta": 0.1842,
+      "davies_bouldin": 1.5215,
+      "calinski_harabasz": 393.2717
+    },
+    {
+      "K": 5,
+      "inercia": 3880.8755,
+      "silueta": 0.1833,
+      "davies_bouldin": 1.4594,
+      "calinski_harabasz": 355.3308
+    },
+    {
+      "K": 6,
+      "inercia": 3553.2876,
+      "silueta": 0.1785,
+      "davies_bouldin": 1.4198,
+      "calinski_harabasz": 334.7805
+    },
+    {
+      "K": 7,
+      "inercia": 3319.5404,
+      "silueta": 0.1831,
+      "davies_bouldin": 1.3785,
+      "calinski_harabasz": 314.0129
+    },
+    {
+      "K": 8,
+      "inercia": 3151.505,
+      "silueta": 0.1802,
+      "davies_bouldin": 1.4016,
+      "calinski_harabasz": 293.4148
+    }
+  ],
+  "comparacion": [
+    {
+      "Configuración": "A: K=4 (final)",
+      "Inercia": 4255.5787,
+      "Silueta": 0.1842,
+      "Davies-Bouldin": 1.5215,
+      "Calinski-Harabasz": 393.2717,
+      "Iteraciones": 19
+    },
+    {
+      "Configuración": "B: K=3",
+      "Inercia": 4795.3778,
+      "Silueta": 0.1914,
+      "Davies-Bouldin": 1.5909,
+      "Calinski-Harabasz": 448.8002,
+      "Iteraciones": 15
+    }
+  ],
+  "ari_k4_k3": 0.4993,
+  "silueta_final": 0.1842,
+  "davies_bouldin_final": 1.5215,
+  "calinski_final": 393.27,
+  "inercia_final": 4255.58,
+  "iteraciones_final": 19,
+  "centroides": [
+    {
+      "cluster_id": 0,
+      "flavor": 7.549,
+      "acidity": 7.541,
+      "body": 7.529,
+      "balance": 7.559,
+      "altitud_m": 1520.088,
+      "defectos": 2.677,
+      "Nombre": "Calidad media de altura"
+    },
+    {
+      "cluster_id": 1,
+      "flavor": 7.098,
+      "acidity": 7.198,
+      "body": 7.191,
+      "balance": 7.091,
+      "altitud_m": 1183.171,
+      "defectos": 4.06,
+      "Nombre": "Calidad baja con defectos"
+    },
+    {
+      "cluster_id": 2,
+      "flavor": 7.572,
+      "acidity": 7.535,
+      "body": 7.558,
+      "balance": 7.557,
+      "altitud_m": 833.572,
+      "defectos": 0.934,
+      "Nombre": "Calidad media de baja altitud"
+    },
+    {
+      "cluster_id": 3,
+      "flavor": 7.92,
+      "acidity": 7.946,
+      "body": 7.852,
+      "balance": 7.915,
+      "altitud_m": 1509.892,
+      "defectos": 1.596,
+      "Nombre": "Café de especialidad"
+    }
+  ],
+  "conteo": {
+    "Calidad media de altura": 476,
+    "Calidad media de baja altitud": 315,
+    "Calidad baja con defectos": 292,
+    "Café de especialidad": 254
+  },
+  "pca_var": [
+    0.5164,
+    0.1723
+  ],
+  "limpieza": {
+    "raw": {
+      "registros": 1339,
+      "columnas": 43,
+      "nulos_altitud": 230,
+      "nulos_variedad": 226,
+      "nulos_proceso": 170,
+      "duplicados_exactos": 0,
+      "duplicados_logicos": 1,
+      "columnas_con_nulos": 19
+    },
+    "registros_puntaje_cero_eliminados": 1,
+    "duplicados_eliminados": 1,
+    "altitud_invalida": 35,
+    "altitud_nulos_total": 265,
+    "humedad_cero_imputada": 264,
+    "nulos_variety": 226,
+    "nulos_processing_method": 169,
+    "atipicos_iqr": {
+      "flavor": 43,
+      "acidity": 24,
+      "body": 33,
+      "balance": 39,
+      "altitud_m": 25,
+      "humedad": 140,
+      "defectos": 90
+    },
+    "limpieza": {
+      "registros_antes": 1339,
+      "registros_despues": 1337,
+      "nulos_restantes_vars_modelo": 0,
+      "variables_modelo": [
+        "flavor",
+        "acidity",
+        "body",
+        "balance",
+        "altitud_m",
+        "log_defectos"
+      ],
+      "media_post_escala": [
+        -0.0,
+        0.0,
+        -0.0,
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "desv_post_escala": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "hallazgos": {
+    "mexico_total": 236,
+    "mexico_dist": {
+      "Calidad baja con defectos": 43.6,
+      "Calidad media de altura": 35.2,
+      "Calidad media de baja altitud": 15.7,
+      "Café de especialidad": 5.5
+    },
+    "global_dist": {
+      "Calidad media de altura": 35.6,
+      "Calidad media de baja altitud": 23.6,
+      "Calidad baja con defectos": 21.8,
+      "Café de especialidad": 19.0
+    },
+    "pct_mexico_por_cluster": {
+      "Café de especialidad": 5.1,
+      "Calidad baja con defectos": 35.3,
+      "Calidad media de altura": 17.4,
+      "Calidad media de baja altitud": 11.7
+    },
+    "top_paises_especialidad": {
+      "Colombia": 42,
+      "Guatemala": 37,
+      "Ethiopia": 34,
+      "Brazil": 18,
+      "Kenya": 17
+    },
+    "corr_altitud_puntaje": 0.212,
+    "pct_especialidad_por_pais": {
+      "Ethiopia": 77.3,
+      "Kenya": 68.0,
+      "Uganda": 41.7,
+      "El Salvador": 33.3,
+      "Indonesia": 30.0
+    }
+  }
+}
