@@ -59,7 +59,7 @@ with c1:
 with c2:
     st.markdown("<h1 style='text-align:center;margin-bottom:0;font-size:2.1rem'>☕ BeanCraft Insights: "
                 "segmentación de lotes de café con K-Means</h1>"
-                "<p style='text-align:center;color:#6b5a4b;margin-top:2px;font-size:1rem'>Módulo analítico de BeanCraft Coffee · "
+                "<p style='text-align:center;color:#6b5a4b;margin-top:2px;font-size:1rem'>"
                 "Calidad sensorial, altitud y defectos · Datos del Coffee Quality Institute</p>", unsafe_allow_html=True)
 with c3:
     if (LOGOS / "idgs.png").exists():
@@ -116,7 +116,7 @@ if pagina.startswith("1"):
         fig = px.histogram(dff, x="total_cup_points", nbins=30, color_discrete_sequence=[CAFE],
                            title="Distribución del puntaje total",
                            labels={"total_cup_points": "Puntaje total"})
-        st.plotly_chart(layout(fig), use_container_width=True)
+        st.plotly_chart(layout(fig), width="stretch")
     with b:
         top = dff["pais"].value_counts().head(10).reset_index()
         top.columns = ["pais", "lotes"]
@@ -124,7 +124,7 @@ if pagina.startswith("1"):
                      title="Top 10 países por número de lotes",
                      color_discrete_sequence=["#2A9D8F"])
         fig.update_yaxes(title="")
-        st.plotly_chart(layout(fig), use_container_width=True)
+        st.plotly_chart(layout(fig), width="stretch")
 
     a, b = st.columns(2)
     with a:
@@ -132,7 +132,7 @@ if pagina.startswith("1"):
                          color_discrete_sequence=[CAFE], trendline="ols",
                          title="Altitud vs. puntaje total",
                          labels={"altitud_m": "Altitud (m)", "total_cup_points": "Puntaje total"})
-        st.plotly_chart(layout(fig), use_container_width=True)
+        st.plotly_chart(layout(fig), width="stretch")
     with b:
         pr = dff.groupby("proceso")["total_cup_points"].agg(["mean", "size"]).reset_index()
         pr = pr[pr["size"] >= 5].sort_values("mean")
@@ -141,14 +141,14 @@ if pagina.startswith("1"):
                      color_discrete_sequence=["#E9A23B"], labels={"mean": "Puntaje promedio"})
         fig.update_xaxes(range=[pr["mean"].min() - 1, pr["mean"].max() + 0.5])
         fig.update_yaxes(title="")
-        st.plotly_chart(layout(fig), use_container_width=True)
+        st.plotly_chart(layout(fig), width="stretch")
 
     st.markdown("##### Estadísticas descriptivas de los lotes filtrados")
     cols = {"total_cup_points": "Puntaje total", "flavor": "Sabor", "acidity": "Acidez",
             "body": "Cuerpo", "balance": "Balance", "altitud_m": "Altitud (m)",
             "defectos": "Defectos"}
     st.dataframe(dff[list(cols)].rename(columns=cols).describe().T.round(2),
-                 use_container_width=True)
+                 width="stretch")
 
 # ======================================================================
 # PÁGINA 2
@@ -177,7 +177,7 @@ else:
                      text="lotes", title="Distribución de lotes por clúster")
         fig.update_layout(showlegend=False)
         fig.update_xaxes(title="")
-        st.plotly_chart(layout(fig), use_container_width=True)
+        st.plotly_chart(layout(fig), width="stretch")
     with b:
         fig = px.scatter(d, x="pca1", y="pca2", color="cluster", color_discrete_map=PALETA,
                          category_orders={"cluster": ORDEN}, opacity=.75,
@@ -185,7 +185,7 @@ else:
                          title="Agrupamientos (proyección PCA)",
                          labels={"pca1": f"PC1 ({res['pca_var'][0] * 100:.1f} %)",
                                  "pca2": f"PC2 ({res['pca_var'][1] * 100:.1f} %)"})
-        st.plotly_chart(layout(fig), use_container_width=True)
+        st.plotly_chart(layout(fig), width="stretch")
 
     a, b = st.columns(2)
     with a:
@@ -195,7 +195,7 @@ else:
                      labels={"total_cup_points": "Puntaje total"})
         fig.update_layout(showlegend=False)
         fig.update_xaxes(title="")
-        st.plotly_chart(layout(fig), use_container_width=True)
+        st.plotly_chart(layout(fig), width="stretch")
     with b:
         prom = d.groupby("cluster")[["flavor", "acidity", "body", "balance"]].mean() \
             .reindex([c for c in ORDEN if c in d["cluster"].unique()])
@@ -207,7 +207,7 @@ else:
                                           line_color=PALETA[c]))
         fig.update_layout(title="Perfil sensorial promedio",
                           polar=dict(radialaxis=dict(range=[6.9, 8.1])))
-        st.plotly_chart(layout(fig), use_container_width=True)
+        st.plotly_chart(layout(fig), width="stretch")
 
     st.markdown("##### Estadísticas descriptivas por clúster (promedio)")
     t = d.groupby("cluster").agg(
@@ -216,18 +216,19 @@ else:
         Balance=("balance", "mean"), Altitud_m=("altitud_m", "mean"),
         Defectos=("defectos", "mean"), Desv_puntaje=("total_cup_points", "std"),
     ).reindex([c for c in ORDEN if c in d["cluster"].unique()]).round(2)
-    st.dataframe(t, use_container_width=True)
+    t = t.rename(columns={"Defectos": "Defectos (promedio)"})
+    st.dataframe(t, width="stretch")
 
     st.markdown("##### Descripción de los grupos identificados")
     desc = {
         "Café de especialidad": "Los mejores perfiles sensoriales (sabor, acidez, cuerpo y balance ≈ 7.9), "
-                                "altitud alta (~1,510 m) y pocos defectos. Los países con más lotes en este grupo son Colombia, Guatemala y Etiopía.",
+                                "altitud alta (~1,510 m) y 2.4 defectos por lote en promedio. Los países con más lotes en este grupo son Colombia, Guatemala y Etiopía.",
         "Calidad media de altura": "Perfil sensorial promedio (~7.55) con altitud alta (~1,520 m) pero más "
-                                   "defectos que los grupos de mayor calidad. Es el grupo más grande.",
+                                   "defectos (4.2 por lote) que los grupos de mayor calidad. Es el grupo más grande.",
         "Calidad media de baja altitud": "Mismo nivel sensorial que el grupo anterior pero cultivado a baja altitud "
-                                         "(~830 m), con muy pocos defectos y mayor presencia de proceso natural.",
+                                         "(~830 m), con 2.0 defectos por lote y mayor presencia de proceso natural.",
         "Calidad baja con defectos": "Puntajes sensoriales más bajos (~7.1) y el mayor número de defectos "
-                                     "(~7.4 por lote). El 35 % de sus lotes son de México.",
+                                     "(7.4 por lote). El 35 % de sus lotes son de México.",
     }
     cc = st.columns(2)
     for i, n in enumerate(ORDEN):
@@ -241,7 +242,7 @@ else:
 **Hallazgos**
 1. Solo ~19 % de los lotes es *café de especialidad* y se distingue por sus puntajes sensoriales, no por la altitud.
 2. La altitud ayuda pero no determina la calidad: el grupo de baja altitud con pocos defectos iguala en sabor al de altura.
-3. Los defectos separan al grupo de calidad baja: ~7.4 por lote contra ~2.0–2.4 en los de especialidad y baja altitud.
+3. Los defectos separan al grupo de calidad baja: 7.4 por lote contra 2.4 en especialidad y 2.0 en baja altitud.
 4. El 43.6 % de los lotes de México cae en *calidad baja con defectos* (vs. 21.8 % global).
 5. La estructura es débil (silueta ≈ 0.18): los grupos se traslapan.
 """)
@@ -252,15 +253,6 @@ else:
 2. Valorar lotes de baja altitud con pocos defectos como alternativa de calidad media estable.
 3. Enfocar la compra de especialidad en orígenes con mayor proporción de lotes de especialidad (Etiopía ≈ 77 %, Kenia ≈ 68 %, Uganda ≈ 42 %).
 4. Dar seguimiento a los lotes mexicanos con capacitación en postcosecha y control de defectos.
-""")
-    with st.expander("Conexión con BeanCraft Coffee (propuesta de uso)"):
-        st.markdown("""
-BeanCraft Coffee es el panel web y la app móvil para cafeterías de San Luis Río Colorado (SRS v1.3). Este módulo
-analítico **no forma parte del alcance del SRS**; es una extensión propuesta que sigue la misma lógica del dashboard
-de BeanCraft (indicadores, gráficas y filtros):
-- Ayuda al dueño a **elegir lotes de grano** por nivel de calidad antes de definir su menú de cafés.
-- Los perfiles (*especialidad*, *media*, *baja con defectos*) podrían guardarse como atributos del producto en MySQL.
-- Con las ventas reales de BeanCraft, el mismo proceso puede segmentar productos o clientes.
 """)
     st.caption("Los grupos se calcularon en Python (scikit-learn, K-Means con StandardScaler) y se "
                "leen de data/processed/coffee_clusters.csv.")

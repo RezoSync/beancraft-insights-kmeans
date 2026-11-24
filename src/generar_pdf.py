@@ -16,11 +16,42 @@ from PIL import Image as PILImage
 
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.lib.fonts import addMapping
-_F = "/usr/share/fonts/truetype/liberation/LiberationSans-"   # métricas idénticas a Arial
-for n, f in [("Arial", "Regular"), ("Arial-Bold", "Bold"), ("Arial-Italic", "Italic"), ("Arial-BoldItalic", "BoldItalic")]:
-    pdfmetrics.registerFont(TTFont(n, _F + f + ".ttf"))
-pdfmetrics.registerFontFamily("Arial", normal="Arial", bold="Arial-Bold", italic="Arial-Italic", boldItalic="Arial-BoldItalic")
+try:
+    from reportlab.pdfbase.pdfmetrics import registerFontAlias
+except ImportError:
+    from copy import copy
+
+    def registerFontAlias(alias, font_name):
+        font = copy(pdfmetrics.getFont(font_name))
+        font.fontName = alias
+        pdfmetrics.registerFont(font)
+
+FONT_NAMES = ("Arial", "Arial-Bold", "Arial-Italic", "Arial-BoldItalic")
+FONT_SETS = [
+    [Path("/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf"),
+     Path("/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf"),
+     Path("/usr/share/fonts/truetype/liberation2/LiberationSans-Italic.ttf"),
+     Path("/usr/share/fonts/truetype/liberation2/LiberationSans-BoldItalic.ttf")],
+    [Path("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"),
+     Path("/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"),
+     Path("/usr/share/fonts/truetype/liberation/LiberationSans-Italic.ttf"),
+     Path("/usr/share/fonts/truetype/liberation/LiberationSans-BoldItalic.ttf")],
+    [Path("C:/Windows/Fonts/arial.ttf"), Path("C:/Windows/Fonts/arialbd.ttf"),
+     Path("C:/Windows/Fonts/ariali.ttf"), Path("C:/Windows/Fonts/arialbi.ttf")],
+]
+for font_dir in (Path("/Library/Fonts"), Path("/System/Library/Fonts/Supplemental")):
+    FONT_SETS.append([font_dir / "Arial.ttf", font_dir / "Arial Bold.ttf",
+                      font_dir / "Arial Italic.ttf", font_dir / "Arial Bold Italic.ttf"])
+
+font_files = next((files for files in FONT_SETS if all(path.is_file() for path in files)), None)
+if font_files:
+    for name, path in zip(FONT_NAMES, font_files):
+        pdfmetrics.registerFont(TTFont(name, str(path)))
+else:
+    for alias, font_name in zip(FONT_NAMES, ("Helvetica", "Helvetica-Bold", "Helvetica-Oblique", "Helvetica-BoldOblique")):
+        registerFontAlias(alias, font_name)
+pdfmetrics.registerFontFamily("Arial", normal="Arial", bold="Arial-Bold",
+                              italic="Arial-Italic", boldItalic="Arial-BoldItalic")
 
 RAIZ = Path(__file__).resolve().parent.parent
 FIG, CAP, OUT, ASS = (RAIZ / "docs" / "figuras", RAIZ / "docs" / "capturas",
@@ -30,6 +61,8 @@ lim = res["limpieza"]
 tabla = pd.read_csv(OUT / "tabla_comparativa.csv")
 cent = pd.read_csv(OUT / "centroides.csv")
 metk = pd.read_csv(OUT / "metricas_por_k.csv")
+estad = pd.read_csv(OUT / "estadisticas_por_cluster.csv", header=[0, 1], index_col=0)
+estad = estad.drop(index="cluster", errors="ignore")
 comp = pd.DataFrame(res["comparacion"])
 
 CAFE = colors.HexColor("#6F4E37")
@@ -119,10 +152,9 @@ S += [Spacer(1, 10), logos, Spacer(1, 2.2 * cm),
                 "dashboard interactivo</b></font>", ParagraphStyle("t", parent=C, leading=30)),
       Spacer(1, .6 * cm),
       Paragraph("Proyecto integrador · Tercera unidad", C),
-      Paragraph("Módulo analítico de BeanCraft Coffee (BeanCraft Insights)", C),
       Spacer(1, 2.2 * cm)]
 datos = [["Integrante", "Vladimir Emanuel Alcala Feliz"], ["Grupo", "IDGS 9-3"],
-         ["Docente", "Mtra. Julia Elizabeth Garcia Herrera"], ["Fecha", "18 de noviembre de 2026"],
+         ["Docente", "Mtra. Julia Elizabeth Garcia Herrera"], ["Fecha", "23 de noviembre de 2026"],
          ["Herramientas", "Python, Pandas, Scikit-learn, Matplotlib, Seaborn, Streamlit"]]
 t = Table([[Paragraph(f"<b>{a}</b>", TC), Paragraph(b, TC)] for a, b in datos], colWidths=[4 * cm, 14 * cm])
 t.setStyle(TableStyle([("BACKGROUND", (0, 0), (0, -1), CLARO), ("GRID", (0, 0), (-1, -1), .4, colors.HexColor("#CFC3B6")),
@@ -144,13 +176,6 @@ S += [p("<b>Temática.</b> El café es uno de los productos agrícolas más come
         "sin etiquetas previas, apoyar decisiones de compra y detectar dónde conviene mejorar la producción "
         "(por ejemplo, el control de defectos). El proyecto aplica el ciclo completo de minería de datos: "
         "exploración, limpieza, modelado, interpretación y comunicación mediante un dashboard."),
-      p("<b>Conexión con BeanCraft Coffee.</b> Este proyecto es el módulo analítico de <i>BeanCraft Coffee</i>, el panel web "
-        "y la app móvil para cafeterías independientes de San Luis Río Colorado (SRS v1.3, grupo IDGS 9-3). BeanCraft atiende "
-        "problemas como que el dueño no sabe qué se vende mejor y para ello ofrece un dashboard con indicadores, gráficas y "
-        "filtros (RF-20 y RF-21). Aquí se aplica la misma idea a la calidad del grano: se segmentan lotes de café reales "
-        "para apoyar la elección de insumos antes de definir el menú de cafés. Es una <b>extensión propuesta, fuera del "
-        "alcance del SRS v1.3</b>, que no se modifica. Se usan datos públicos del CQI porque BeanCraft es un prototipo y "
-        "todavía no genera ventas reales."),
       p("<b>Qué se busca identificar con K-Means.</b> Grupos de lotes con características similares en cuatro "
         "atributos sensoriales (sabor, acidez, cuerpo, balance), la altitud y los defectos, por ejemplo un "
         "grupo de café de especialidad, grupos de calidad media que se distinguen por su altitud y un grupo de "
@@ -226,7 +251,9 @@ S += [tbl([
 ], [6.2 * cm, 2.5 * cm, 8.3 * cm]), Spacer(1, 6),
       p(f"Tras la limpieza el dataset quedó con <b>{lim['limpieza']['registros_despues']:,} registros</b> y "
         "<b>0 nulos</b> en las variables del modelo. Se creó la variable derivada <i>defectos</i> (categoría 1 + categoría 2) "
-        "y variables codificadas (<i>es_mexico</i>, <i>especie_cod</i>) para el análisis posterior de los grupos."),
+        "y variables codificadas (<i>es_mexico</i>, <i>especie_cod</i>) para el análisis posterior de los grupos. "
+        f"La única columna del dataset procesado con nulos es <i>anio_cosecha</i> ({lim['anio_cosecha_nulos']}); "
+        "no entra al modelo y no se imputó para no inventar años."),
       fig("03_limpieza_atipicos.png", 18 * cm,
           "Figura 3. Efecto de la limpieza: altitud antes y después, y transformación logarítmica de defectos."),
       p("<b>Escalamiento.</b> Se aplicó <i>StandardScaler</i> (media 0 y desviación 1 en las seis variables). K-Means "
@@ -264,13 +291,15 @@ S += [Paragraph("6.2 Comparación de dos configuraciones (K = 4 vs. K = 3)", H2)
         "coinciden sólo parcialmente: K = 4 no es un simple refinamiento de K = 3.")]
 
 S += [Paragraph("6.3 Centroides", H2),
-      p("Los centroides se expresan en la escala original (invirtiendo el escalamiento). En la columna de defectos se muestra "
-        "el valor típico (inverso del logaritmo), por eso difiere ligeramente del promedio simple de la tabla comparativa.")]
-ce = [["Clúster", "Sabor", "Acidez", "Cuerpo", "Balance", "Altitud (m)", "Defectos típicos"]]
+      p("Sabor, acidez, cuerpo, balance y altitud son los centroides en escala original. El modelo usó "
+        "log(1+defectos); en esta tabla se muestra el promedio real de defectos de cada grupo para que coincida "
+        "con la tabla comparativa.")]
+ce = [["Clúster", "Sabor", "Acidez", "Cuerpo", "Balance", "Altitud (m)", "Defectos (promedio)"]]
 orden = ["Café de especialidad", "Calidad media de altura", "Calidad media de baja altitud", "Calidad baja con defectos"]
 for n in orden:
     r = cent[cent.Nombre == n].iloc[0]
-    ce.append([n, f"{r.flavor:.2f}", f"{r.acidity:.2f}", f"{r.body:.2f}", f"{r.balance:.2f}", nm(r.altitud_m), f"{r.defectos:.1f}"])
+    ce.append([n, f"{r.flavor:.2f}", f"{r.acidity:.2f}", f"{r.body:.2f}", f"{r.balance:.2f}",
+               nm(r.altitud_m), f"{r['Defectos (promedio)']:.1f}"])
 S += [tbl(ce, [5 * cm, 1.8 * cm, 1.8 * cm, 1.8 * cm, 1.8 * cm, 2.2 * cm, 2.6 * cm]), Spacer(1, 6),
       fig("07_centroides_heatmap.png", 16 * cm,
           "Figura 5. Centroides estandarizados: el café de especialidad está +1.4 desviaciones sobre la media en sensorial; el grupo bajo, -1.4.")]
@@ -281,14 +310,21 @@ S += [PageBreak(), Paragraph("6.4 Agrupamientos y comparación entre grupos", H2
       fig("06_comparacion_clusters.png", 18 * cm,
           "Figura 7. Lotes por clúster, puntaje total y altitud por clúster.")]
 
-tt = [["Clúster", "Lotes", "%", "Puntaje", "Sabor", "Altitud (m)", "Defectos (prom.)", "% México", "% Natural"]]
+tt = [["Clúster", "Lotes", "%", "Puntaje", "Sabor", "Altitud (m)", "Defectos (promedio)", "% México", "% Natural"]]
 for r in tabla.itertuples():
     tt.append([r.cluster, int(r.Lotes), f"{r.Pct_Lotes:.1f}", f"{r.Puntaje_total:.2f}", f"{r.Sabor:.2f}",
                nm(r.Altitud_m), f"{r.Defectos:.1f}", f"{r.Pct_Mexico:.1f}", f"{r.Pct_Natural:.1f}"])
 S += [Paragraph("6.5 Tabla comparativa e interpretación de los grupos", H2),
-      tbl(tt, [4.1 * cm, 1.2 * cm, 1.1 * cm, 1.6 * cm, 1.3 * cm, 1.8 * cm, 2.2 * cm, 1.8 * cm, 1.9 * cm]), Spacer(1, 6)]
+      tbl(tt, [4.1 * cm, 1.2 * cm, 1.1 * cm, 1.6 * cm, 1.3 * cm, 1.8 * cm, 2.7 * cm, 1.8 * cm, 1.9 * cm]), Spacer(1, 6)]
+for variable, etiqueta in (("total_cup_points", "Puntaje total"),
+                           ("altitud_m", "Altitud (m)"), ("defectos", "Defectos")):
+    filas = [["Clúster", "Media", "Mediana", "Desv. est.", "Mín.", "Máx."]]
+    for nombre in orden:
+        valores = [estad.loc[nombre, (variable, medida)] for medida in ("mean", "median", "std", "min", "max")]
+        filas.append([nombre] + [f"{float(valor):,.2f}" for valor in valores])
+    S += [p(f"<b>{etiqueta} por clúster</b>"), tbl(filas, [5.4 * cm, 2.4 * cm, 2.4 * cm, 2.7 * cm, 2.4 * cm, 2.7 * cm]), Spacer(1, 4)]
 S += bl(["<b>Café de especialidad (254 lotes, 19 %).</b> Mejores perfiles sensoriales (~7.9), puntaje promedio 84.9, altitud "
-         "alta y pocos defectos. Origen principal: Colombia, Guatemala y Etiopía.",
+         "alta y 2.4 defectos por lote en promedio. Origen principal: Colombia, Guatemala y Etiopía.",
          "<b>Calidad media de altura (476 lotes, 36 %).</b> Perfil sensorial promedio (~7.55) con altitud alta (~1,520 m) y "
          "defectos moderados-altos (4.2). Es el grupo más grande.",
          "<b>Calidad media de baja altitud (315 lotes, 24 %).</b> Mismo nivel sensorial pero a ~830 m, con los menos defectos "
@@ -305,7 +341,7 @@ S += [Paragraph("6.6 Hallazgos", H2)]
 h = res["hallazgos"]
 S += bl([f"Sólo el 19 % de los lotes forma el grupo de especialidad; su rasgo distintivo es el perfil sensorial, no la altitud.",
          "Un grupo de baja altitud con pocos defectos iguala en sabor a uno de altura: el manejo del grano puede compensar la altitud.",
-         "Los defectos separan con claridad al grupo de baja calidad (7.4 por lote contra 2.0–2.4 en los grupos de especialidad y baja altitud).",
+         "Los defectos separan con claridad al grupo de baja calidad: 7.4 por lote contra 2.4 en especialidad y 2.0 en baja altitud.",
          f"Etiopía (77 %), Kenia (68 %) y Uganda (42 %) son los orígenes con mayor proporción de lotes de especialidad (países con 20 o más lotes).",
          f"El {h['mexico_dist']['Calidad baja con defectos']:.1f} % de los {h['mexico_total']} lotes de México cae en «calidad baja con defectos» "
          f"(global: {h['global_dist']['Calidad baja con defectos']:.1f} %) y sólo el {h['mexico_dist']['Café de especialidad']:.1f} % en especialidad."])
@@ -340,13 +376,6 @@ S += bl(["<b>Reducir defectos en origen</b> (selección, secado y clasificación
          "<b>Orientar la compra de café de especialidad</b> hacia orígenes con alta proporción de lotes del grupo de especialidad (Etiopía, Kenia, Uganda).",
          "<b>Capacitar en postcosecha a los productores con lotes en el grupo de calidad baja</b>, empezando por los de mayor incidencia de defectos, "
          "como una buena parte de los lotes mexicanos del dataset."])
-S += [Paragraph("Aplicación en BeanCraft Coffee (propuesta)", H2)]
-S += bl(["<b>Elección de insumos:</b> el dueño de la cafetería puede comparar lotes por nivel de calidad antes de definir los cafés del menú, "
-         "con un tablero como el de BeanCraft (indicadores, gráficas y filtros).",
-         "<b>Catálogo de productos:</b> el perfil del grano (especialidad, media o baja con defectos), el origen y el proceso podrían "
-         "guardarse como atributos del producto en MySQL, sin cambiar el modelo actual del SRS v1.3.",
-         "<b>Datos propios:</b> cuando BeanCraft opere y acumule ventas y calificaciones, el mismo proceso de limpieza, escalamiento y "
-         "K-Means podrá segmentar productos o clientes."])
 S += [Paragraph("Limitaciones del modelo", H2)]
 S += bl([f"<b>Estructura de grupos débil:</b> la silueta es 0.18, lo que indica clústeres que se traslapan; son segmentos útiles, no categorías naturales separadas.",
          "<b>K-Means supone grupos esféricos</b> y es sensible a la escala y a los valores extremos; se mitigó con StandardScaler y la transformación logarítmica.",

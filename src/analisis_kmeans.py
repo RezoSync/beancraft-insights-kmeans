@@ -56,6 +56,8 @@ print(df_raw.head(10).iloc[:, :12].to_string())
 print(f"\nDimensiones: {df_raw.shape}")
 print("\nTipos de datos:")
 print(df_raw.dtypes.value_counts())
+print("\nTipo de cada columna:")
+print(df_raw.dtypes.to_string())
 print("\nEstadísticas descriptivas (variables numéricas):")
 print(df_raw.describe().T.round(2).to_string())
 
@@ -159,6 +161,7 @@ df["processing_method"] = df["processing_method"].replace(
 
 # 3.7 Tipos de datos (harvest_year es texto con formatos "2014/2015", etc.)
 df["anio_cosecha"] = pd.to_numeric(df["harvest_year"].astype(str).str[:4], errors="coerce")
+log["anio_cosecha_nulos"] = int(df["anio_cosecha"].isna().sum())
 
 # 3.8 Variable derivada: defectos totales
 df["defectos"] = df["category_one_defects"] + df["category_two_defects"]
@@ -273,8 +276,8 @@ comp.to_csv(OUT / "comparacion_configuraciones.csv", index=False)
 
 # ---- Centroides en escala original ----
 cent = pd.DataFrame(scaler.inverse_transform(km.cluster_centers_), columns=vars_modelo)
-cent["defectos"] = np.expm1(cent["log_defectos"])
 cent = cent.drop(columns="log_defectos")
+cent["Defectos (promedio)"] = df.groupby("cluster_id")["defectos"].mean()
 cent.index.name = "cluster_id"
 print("\nCentroides (escala original):\n", cent.round(2))
 print("\nRegistros por clúster:\n", df["cluster_id"].value_counts().sort_index())

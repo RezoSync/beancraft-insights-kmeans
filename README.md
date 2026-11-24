@@ -4,19 +4,14 @@ Proyecto integrador · Tercera unidad · Minería de datos
 **Alumno:** Vladimir Emanuel Alcala Feliz · **Grupo:** IDGS 9-3 · **Docente:** Mtra. Julia Elizabeth Garcia Herrera
 Universidad Tecnológica de San Luis Río Colorado
 
-## Conexión con BeanCraft Coffee
-Este proyecto es el **módulo analítico** de *BeanCraft Coffee* (panel web y app móvil para cafeterías de San Luis Río Colorado, SRS v1.3). BeanCraft resuelve, entre otros, que *el dueño no sabe qué se vende mejor* con un dashboard de ventas (RF-20 y RF-21). Este proyecto aplica la misma idea de dashboard con filtros a la **calidad del grano**: segmenta lotes de café reales para apoyar la elección de insumos de la cafetería.
-- Es una **extensión propuesta, fuera del alcance del SRS v1.3**, que no se modifica.
-- Usa datos públicos del CQI porque BeanCraft aún es un prototipo y no tiene ventas reales; con datos reales el mismo proceso podría segmentar productos o clientes.
-
 ## Descripción
 Se segmentan **1,337 lotes de café** evaluados por el Coffee Quality Institute usando el algoritmo no supervisado **K-Means**, a partir de su calidad sensorial (sabor, acidez, cuerpo, balance), altitud y defectos. Se identificaron **4 perfiles**:
 
 | Clúster | Lotes | Rasgo principal |
 |---|---|---|
-| Café de especialidad | 254 | Mejor perfil sensorial (~7.9), puntaje 84.9 |
-| Calidad media de altura | 476 | Sensorial medio, altitud ~1,520 m |
-| Calidad media de baja altitud | 315 | Sensorial medio, altitud ~830 m, pocos defectos |
+| Café de especialidad | 254 | Mejor perfil sensorial (~7.9), puntaje 84.9, 2.4 defectos por lote |
+| Calidad media de altura | 476 | Sensorial medio, altitud ~1,520 m, 4.2 defectos por lote |
+| Calidad media de baja altitud | 315 | Sensorial medio, altitud ~830 m, 2.0 defectos por lote |
 | Calidad baja con defectos | 292 | Sensorial ~7.1, 7.4 defectos por lote |
 
 Resultados del modelo (K = 4): silueta 0.184, Davies-Bouldin 1.52, Calinski-Harabasz 393. Se compararon K = 4 y K = 3 (ver documento PDF).

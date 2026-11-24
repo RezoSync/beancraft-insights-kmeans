@@ -92,7 +92,7 @@
       "body": 7.529,
       "balance": 7.559,
       "altitud_m": 1520.088,
-      "defectos": 2.677,
+      "Defectos (promedio)": 4.229,
       "Nombre": "Calidad media de altura"
     },
     {
@@ -102,7 +102,7 @@
       "body": 7.191,
       "balance": 7.091,
       "altitud_m": 1183.171,
-      "defectos": 4.06,
+      "Defectos (promedio)": 7.363,
       "Nombre": "Calidad baja con defectos"
     },
     {
@@ -112,7 +112,7 @@
       "body": 7.558,
       "balance": 7.557,
       "altitud_m": 833.572,
-      "defectos": 0.934,
+      "Defectos (promedio)": 1.984,
       "Nombre": "Calidad media de baja altitud"
     },
     {
@@ -122,7 +122,7 @@
       "body": 7.852,
       "balance": 7.915,
       "altitud_m": 1509.892,
-      "defectos": 1.596,
+      "Defectos (promedio)": 2.402,
       "Nombre": "Café de especialidad"
     }
   ],
@@ -154,6 +154,7 @@
     "humedad_cero_imputada": 264,
     "nulos_variety": 226,
     "nulos_processing_method": 169,
+    "anio_cosecha_nulos": 84,
     "atipicos_iqr": {
       "flavor": 43,
       "acidity": 24,
