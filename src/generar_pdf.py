@@ -91,6 +91,12 @@ def img(path, w):
     return Image(str(path), width=w, height=w * ih / iw)
 
 
+def img_fit(path, max_w=18 * cm, max_h=21 * cm):
+    iw, ih = PILImage.open(path).size
+    w = min(max_w, max_h * iw / ih)
+    return Image(str(path), width=w, height=w * ih / iw)
+
+
 def fig(name, w, caption):
     return KeepTogether([img(FIG / name, w), Paragraph(caption, CAPT)])
 
@@ -360,9 +366,9 @@ S += bl(["<b>Tres filtros interactivos</b> en la barra lateral, funcionales en a
          "<b>Página 2 · Segmentación K-Means:</b> cuatro KPI (lotes segmentados, clústeres, % de especialidad, silueta), distribución "
          "de lotes por clúster, dispersión PCA de los grupos, caja de puntaje por clúster, radar del perfil sensorial, tabla de "
          "estadísticas por clúster, descripción de cada grupo y sección de hallazgos y recomendaciones."])
-S += [KeepTogether([img(CAP / "dashboard_pagina1.png", 13.5 * cm), Paragraph("Figura 8. Dashboard, página 1: análisis general.", CAPT)])]
-S += [PageBreak(), KeepTogether([img(CAP / "dashboard_pagina2.png", 13.5 * cm), Paragraph("Figura 9. Dashboard, página 2: segmentación mediante K-Means.", CAPT)])]
-S += [PageBreak(), KeepTogether([img(CAP / "dashboard_pagina2_filtro_mexico.png", 13.5 * cm), Paragraph("Figura 10. Filtro «País = Mexico» aplicado: los KPI, gráficas y tablas se recalculan (236 lotes).", CAPT)])]
+S += [KeepTogether([img_fit(CAP / "dashboard_pagina1.png"), Paragraph("Figura 8. Dashboard, página 1: análisis general.", CAPT)])]
+S += [PageBreak(), KeepTogether([img_fit(CAP / "dashboard_pagina2.png"), Paragraph("Figura 9. Dashboard, página 2: segmentación mediante K-Means.", CAPT)])]
+S += [PageBreak(), KeepTogether([img_fit(CAP / "dashboard_pagina2_filtro_mexico.png"), Paragraph("Figura 10. Filtro «País = Mexico» aplicado: los KPI, gráficas y tablas se recalculan (236 lotes).", CAPT)])]
 
 # ----------------------------- 8. CONCLUSIONES -----------------------------
 S += [PageBreak(), Paragraph("8. Conclusiones y recomendaciones", H1), Paragraph("Conclusiones", H2),
